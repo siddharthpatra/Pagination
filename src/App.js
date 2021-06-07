@@ -6,14 +6,16 @@ function App() {
   const [start, setStart] = useState(0);
   const [loading, setloading] = useState(false);
 
-  const fetchData = async (start) => {
-    const res = await fetch(
+  function fetchData(start) {
+    fetch(
       ` http://jsonplaceholder.typicode.com/posts?_start=${start}&_limit=10`
-    );
-    const datas = await res.json();
-    setData(d => [...d, ...datas]);
-    setloading(true);
-  };
+    )
+      .then((res) => res.json())
+      .then((datas) => {
+        setData((d) => [...d, ...datas]); // Adding the previous data and new data after fetch
+        setloading(true);
+      });
+  }
 
   useEffect(() => {
     fetchData(start);
@@ -23,14 +25,17 @@ function App() {
 
   useEffect(() => {
     if (loading) {
+      // Observer to view the intersecting area
       const observer = new IntersectionObserver(
         (entries) => {
-          if(entries[0].isIntersecting) {
-            setStart(prevStart => prevStart+10)
+          if (entries[0].isIntersecting) {
+            // Set the start to the next 10 elements when ever we reach the bottom of the page
+            setStart((prevStart) => prevStart + 10);
           }
         },
         { threshold: 1 }
       );
+      // Observing the scroll Area
       observer.observe(bottomRef.current);
     }
   }, [loading]);
